@@ -1,5 +1,3 @@
-from crypt import methods
-import json
 from flask import Flask, jsonify, request, url_for
 from tasks import get_stock_prices
 from celery.result import AsyncResult
@@ -12,15 +10,16 @@ def hello():
     return jsonify({"result": "Hello There!"}), 200
 
 
-@app.route("/tasks", methods=["POST", "GET"])
+@app.route("/tasks", methods=["POST"])
 def run_scraper():
-    response = request.json
-    print(response)
-    content = json.loads(response)
-    print(content)
-    stock_list = list(content["symbols"])
-    task = get_stock_prices.delay(stock_list)
-    return jsonify({"task_status": url_for("get_results", task_id=task.id)}), 202
+    if request.method == "POST":
+        response = request.get_json()
+        print(response)
+        stock_list = list(response["symbols"])
+        task = get_stock_prices.delay(stock_list)
+        return jsonify({"task_status": url_for("get_results", task_id=task.id)}), 202
+    else:
+        return jsonify({"result": "Not a Post request"})
 
 
 @app.route("/tasks/<task_id>", methods=["GET"])
@@ -35,4 +34,4 @@ def get_results(task_id):
 
 
 if __name__ == "__main__":
-    app.run(port=5004)
+    app.run()

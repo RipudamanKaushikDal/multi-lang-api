@@ -58,7 +58,7 @@ class YahooFinanceScraper:
         except ConnectionError:
             print("Connection Error, couldn't connect to yahoo finance website")
 
-        return {"symbol":{"price":price,"change":change}}
+        return {symbol: {"price": price, "change": change}}
 
     async def fetch_prices(self) -> list:
         async with aiohttp.ClientSession() as session:
