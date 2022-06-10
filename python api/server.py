@@ -24,13 +24,14 @@ def run_scraper():
 
 @app.route("/tasks/<task_id>", methods=["GET"])
 def get_results(task_id):
+    print(request)
     task_result = AsyncResult(task_id)
     results = {
         "task_id": task_id,
         "task_status": task_result.status,
         "task_result": task_result.result
     }
-    return jsonify({"results": results}), 200
+    return jsonify(results), 200
 
 
 if __name__ == "__main__":
