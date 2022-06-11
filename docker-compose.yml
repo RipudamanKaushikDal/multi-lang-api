@@ -2,13 +2,14 @@ version: '3.8'
 
 services:
 
-  web:
-    build: .
+  api:
+    build: ./python-api
     container_name: flask
     ports:
       - 5004:5000
+    working_dir: /app/api
     volumes:
-      - .:/usr/src/app
+      - ./python-api:/app/api
     environment:
       - FLASK_DEBUG=1
       - FLASK_ENV=development
@@ -18,20 +19,34 @@ services:
       - redis
 
   worker:
-    build: .
+    build: ./python-api
     container_name: celery
+    working_dir: /app/api
     command: celery --app tasks.celery worker --loglevel=info
     volumes:
-      - .:/usr/src/app
+      - ./python-api:/app/api
     environment:
       - FLASK_DEBUG=1
       - FLASK_ENV=development
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
     depends_on:
-      - web
+      - api
       - redis
 
   redis:
     image: redis:6-alpine
     container_name: redis
+
+  web:
+    image: "node:16.14.0"
+    container_name: react
+    depends_on: ["api"]
+    working_dir: /app/front-end
+    command: bash -c "yarn && yarn run start"
+    volumes:
+      - "./front-end:/app/front-end"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    expose: ["3000"]
+    ports: ["3000:3000"]

@@ -13,18 +13,19 @@ def hello():
 @app.route("/tasks", methods=["POST"])
 def run_scraper():
     if request.method == "POST":
-        response = request.get_json()
-        print(response)
-        stock_list = list(response["symbols"])
-        task = get_stock_prices.delay(stock_list)
-        return jsonify({"task_status": url_for("get_results", task_id=task.id)}), 202
+        try:
+            response = request.get_json()
+            stock_list = list(response["symbols"])
+            task = get_stock_prices.delay(stock_list)
+            return jsonify({"task_status": url_for("get_results", task_id=task.id)}), 202
+        except:
+            return jsonify({"result": "Error occured while fetching results"}), 404
     else:
-        return jsonify({"result": "Not a Post request"})
+        return jsonify({"result": "Not a Post request"}), 500
 
 
 @app.route("/tasks/<task_id>", methods=["GET"])
 def get_results(task_id):
-    print(request)
     task_result = AsyncResult(task_id)
     results = {
         "task_id": task_id,

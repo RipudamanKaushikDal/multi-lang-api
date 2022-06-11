@@ -3,7 +3,6 @@ package controllers
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -44,13 +43,12 @@ func setInterval(task func(), duration int) chan bool {
 	return clear
 }
 
-func getJson(response *http.Response, structure interface{}) error {
-	defer response.Body.Close()
+func getJson(response *http.Response, structureReference interface{}) error {
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		panic(err.Error())
 	}
-	return json.Unmarshal(body, &structure)
+	return json.Unmarshal(body, structureReference)
 }
 
 func FindInvestors(ctx *gin.Context) {
@@ -80,29 +78,23 @@ func GetStocks(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	fmt.Println("Stocks:", stocks)
+
 	response, err := http.Post("http://localhost:5004/tasks", "application/json", bytes.NewBuffer(stocks))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	var task Task
-	body, _ := ioutil.ReadAll(response.Body)
-	err = json.Unmarshal(body, &task)
-	fmt.Println("TaskId:", string(body))
 
+	err = getJson(response, &task)
 	if err != nil {
 		panic(err.Error())
 	}
-	// get response from json object
-
-	fmt.Printf("%+v\n", task)
 
 	var results Result
 	fetchResults := func() {
 		response, _ = http.Get("http://localhost:5004" + task.TaskURL)
-		body, _ = ioutil.ReadAll(response.Body)
-		err = json.Unmarshal(body, &results)
+		err = getJson(response, &results)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -112,7 +104,7 @@ func GetStocks(ctx *gin.Context) {
 
 	for {
 
-		fmt.Printf("%+v\n", results)
+		time.Sleep(1000)
 
 		if results.TaskStatus == "SUCCESS" {
 			clear <- true

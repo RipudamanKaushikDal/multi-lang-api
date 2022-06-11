@@ -1,11 +1,11 @@
 FROM ubuntu:20.04
 
-WORKDIR /app
+WORKDIR /python-api
 
 ENV FLASK_APP=server.py
 ENV FLASK_RUN_HOST=0.0.0.0
 
-COPY requirements.txt ./
+COPY ./requirements.txt ./
 
 RUN apt-get update && apt-get -y install python3.8 \ 
     python3-pip
@@ -14,6 +14,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 5000
 
-COPY . ./
+COPY . ./app/api
 
 CMD ["flask","run"]
