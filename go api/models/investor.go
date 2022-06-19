@@ -1,10 +1,17 @@
 package models
 
-import "time"
+import "gorm.io/gorm"
 
 type Investor struct {
-	ID        uint      `json:"id" gorm:"primary_key"`
-	Name      string    `json:"name" binding:"required"`
-	Stocks    []string  `json:"stocks" binding:"required"`
-	UpdatedAt time.Time `json:"timestamp"`
+	gorm.Model
+	Name   string  `json:"name" binding:"required"`
+	Stocks []Stock `json:"stocks" binding:"required"`
+}
+
+type Stock struct {
+	gorm.Model
+	InvestorID uint
+	Symbol     string
+	Price      string
+	Change     string
 }

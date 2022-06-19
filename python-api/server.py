@@ -15,7 +15,7 @@ def run_scraper():
     if request.method == "POST":
         try:
             response = request.get_json()
-            stock_list = list(response["symbols"])
+            stock_list = list(response["stocks"])
             task = get_stock_prices.delay(stock_list)
             return jsonify({"task_status": url_for("get_results", task_id=task.id)}), 202
         except:

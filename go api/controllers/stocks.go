@@ -11,6 +11,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type DatabaseQuery struct {
+	Id     uint
+	Stocks []string
+}
+
 type Task struct {
 	TaskURL string `json:"task_status"`
 }
@@ -51,18 +56,9 @@ func getJson(response *http.Response, structureReference interface{}) error {
 	return json.Unmarshal(body, structureReference)
 }
 
-func FindInvestors(ctx *gin.Context) {
-	var Investors []models.Investor
-	results := models.DB.Find(&Investors)
-	if results.Error != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": results.Error})
-		return
-	}
-	ctx.JSON(http.StatusOK, gin.H{"data": results})
-}
-
 func CreateInvestor(ctx *gin.Context) {
 	var Investor models.Investor
+
 	if err := ctx.ShouldBindJSON(&Investor); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -72,14 +68,21 @@ func CreateInvestor(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"data": investor})
 }
 
-func GetStocks(ctx *gin.Context) {
-	stocks, err := ctx.GetRawData()
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+func GetAllStocks(ctx *gin.Context) {
+	var investor []models.Investor
+	dbSearch := models.DB.Preload("Stocks").Find(&investor)
+
+	if err := dbSearch.Error; err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err})
 		return
 	}
+	ctx.JSON(http.StatusOK, gin.H{"data": investor})
+}
 
-	response, err := http.Post("http://localhost:5004/tasks", "application/json", bytes.NewBuffer(stocks))
+func GetStocks(ctx *gin.Context) {
+
+	var investor []byte
+	response, err := http.Post("http://localhost:5004/tasks", "application/json", bytes.NewBuffer(investor))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

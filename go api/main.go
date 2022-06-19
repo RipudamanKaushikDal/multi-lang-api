@@ -19,9 +19,8 @@ func main() {
 		ctx.JSON(http.StatusOK, gin.H{"data": "Hi There!"})
 	})
 
-	router.GET("/investors", controllers.FindInvestors)
 	router.POST("/investors", controllers.CreateInvestor)
-	router.POST("/stocks", controllers.GetStocks)
+	router.GET("/stocks", controllers.GetAllStocks)
 
 	router.Run()
 }

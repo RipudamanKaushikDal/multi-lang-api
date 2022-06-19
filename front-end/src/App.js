@@ -1,23 +1,30 @@
-import logo from './logo.svg';
 import './App.css';
+import {useEffect,useState} from "react"
+import {getAllInvestors, getAllStocks} from "./api/api-requests"
+import Investor from './investor-block/investor';
 
-function App() {
+const App = () => {
+
+  const [investorList,setInvestorList] = useState([])
+  const [stockInfo,setStockInfo] = useState({})
+
+  useEffect (() => {
+    getAllInvestors().then(resp => resp && setInvestorList(resp))
+  },[])
+
+  const refreshPrices = () =>{
+    const queryBody = investorList.map(investor => {return {id:investor.id,stocks:investor.stocks}})
+    getAllStocks(queryBody).then(resp => resp && setStockInfo(resp))
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div>
+        <button onClick={refreshPrices}>Refresh Prices</button>
+      </div>
+      {investorList.map(investor => (
+        <Investor name={investor.name} stocks={investor.stocks} id={investor.id} key={investor.id.toString()} stockInfo={stockInfo} />
+      ))}
     </div>
   );
 }
