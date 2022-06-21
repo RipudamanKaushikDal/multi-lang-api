@@ -10,8 +10,6 @@ type Investor struct {
 
 type Stock struct {
 	gorm.Model
-	InvestorID uint
-	Symbol     string
-	Price      string
-	Change     string
+	InvestorID uint   `json:"investorID"`
+	Symbol     string `json:"symbol"`
 }

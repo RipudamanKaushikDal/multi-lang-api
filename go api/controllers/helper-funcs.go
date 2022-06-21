@@ -8,22 +8,21 @@ import (
 	"time"
 
 	"github.com/RipudamanKaushikDal/MultilangAPI/models"
-	"github.com/gin-gonic/gin"
 )
-
-type DatabaseQuery struct {
-	Id     uint
-	Stocks []string
-}
 
 type Task struct {
 	TaskURL string `json:"task_status"`
 }
 
-type Result struct {
+type APIResult struct {
 	TaskId     string                   `json:"task_id"`
 	TaskStatus string                   `json:"task_status"`
 	TaskResult []map[string]interface{} `json:"task_result"`
+}
+
+type Result struct {
+	ID        uint                     `json:"id"`
+	StockInfo []map[string]interface{} `json:"stockInfo"`
 }
 
 func setInterval(task func(), duration int) chan bool {
@@ -56,37 +55,32 @@ func getJson(response *http.Response, structureReference interface{}) error {
 	return json.Unmarshal(body, structureReference)
 }
 
-func CreateInvestor(ctx *gin.Context) {
-	var Investor models.Investor
-
-	if err := ctx.ShouldBindJSON(&Investor); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+func GetTaskId(stockModels []models.Stock) (*http.Response, error) {
+	var stockList []string
+	for _, stocks := range stockModels {
+		stockList = append(stockList, stocks.Symbol)
 	}
-	investor := models.Investor{Name: Investor.Name, Stocks: Investor.Stocks}
-	models.DB.Create(&investor)
-	ctx.JSON(http.StatusOK, gin.H{"data": investor})
-}
 
-func GetAllStocks(ctx *gin.Context) {
-	var investor []models.Investor
-	dbSearch := models.DB.Preload("Stocks").Find(&investor)
+	stockMap := make(map[string][]string)
+	stockMap["stocks"] = stockList
 
-	if err := dbSearch.Error; err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": err})
-		return
-	}
-	ctx.JSON(http.StatusOK, gin.H{"data": investor})
-}
+	postdata, _ := json.Marshal(stockMap)
 
-func GetStocks(ctx *gin.Context) {
-
-	var investor []byte
-	response, err := http.Post("http://localhost:5004/tasks", "application/json", bytes.NewBuffer(investor))
+	response, err := http.Post("http://localhost:5004/tasks", "application/json", bytes.NewBuffer(postdata))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+		panic(err.Error())
 	}
+
+	return response, err
+}
+
+func GetStockInfo(stockModels []models.Stock) Result {
+
+	var result Result
+
+	result.ID = stockModels[0].InvestorID
+	response, err := GetTaskId(stockModels)
+
 	var task Task
 
 	err = getJson(response, &task)
@@ -94,10 +88,10 @@ func GetStocks(ctx *gin.Context) {
 		panic(err.Error())
 	}
 
-	var results Result
+	var apiResults APIResult
 	fetchResults := func() {
 		response, _ = http.Get("http://localhost:5004" + task.TaskURL)
-		err = getJson(response, &results)
+		err = getJson(response, &apiResults)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -107,13 +101,14 @@ func GetStocks(ctx *gin.Context) {
 
 	for {
 
-		time.Sleep(1000)
+		time.Sleep(500)
 
-		if results.TaskStatus == "SUCCESS" {
+		if apiResults.TaskStatus == "SUCCESS" {
 			clear <- true
-			ctx.JSON(http.StatusOK, gin.H{"results": results.TaskResult})
-			return
+			result.StockInfo = apiResults.TaskResult
+			return result
 		}
+
 	}
 
 }

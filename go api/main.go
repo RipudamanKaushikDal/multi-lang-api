@@ -20,7 +20,9 @@ func main() {
 	})
 
 	router.POST("/investors", controllers.CreateInvestor)
+	router.GET("/investors", controllers.GetAllInvestors)
 	router.GET("/stocks", controllers.GetAllStocks)
+	router.GET("/stocks/:id", controllers.GetStockById)
 
 	router.Run()
 }
