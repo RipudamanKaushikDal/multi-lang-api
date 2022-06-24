@@ -1,0 +1,29 @@
+
+.investor{
+    position: relative;
+    left: 25%;
+    margin: 30px 0;
+    width: 50%;
+    height: fit-content;
+}
+
+.investor__head{
+    display: flex;
+    flex-direction: row;
+    outline: 2px solid #32363d;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 8px;
+    padding: 0 4px;
+}
+
+.investor__stocks__container{
+    border-radius: 8px;
+    padding: 0 4px;
+    outline: 2px solid #32363d;
+    margin-top:10px;
+}
+
+.investor__stocks__container:last-child{
+    border: none;
+}

@@ -1,0 +1,8 @@
+.stock-tile {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 2px solid #32363d;
+    justify-content: space-between;
+    align-items: center;
+}
+

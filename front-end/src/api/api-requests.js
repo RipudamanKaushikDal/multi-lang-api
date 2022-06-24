@@ -1,5 +1,5 @@
 
-const APIURL = "http://localhost:8080"
+const APIURL = "http://192.168.0.9:8080"
 
 export const getAllInvestors = async() => {
     try {
@@ -11,15 +11,18 @@ export const getAllInvestors = async() => {
     
 }
 
-export const getAllStocks = async(investorList) => {
+export const getAllStocks = async() => {
     try {
-        const resp = await fetch(`${APIURL}/stocks`,{
-            method:"POST",
-            headers:{
-                'Content-Type': 'application/json'
-            },
-            body:JSON.stringify(investorList)
-        })
+        const resp = await fetch(`${APIURL}/stocks`)
+        return resp.json()
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+export const getInvestorStocks = async(investorId) => {
+    try {
+        const resp = await fetch(`${APIURL}/stocks/${investorId}`)
         return resp.json()
     } catch (error) {
         console.error(error)

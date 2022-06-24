@@ -8,10 +8,16 @@ import (
 	"github.com/RipudamanKaushikDal/MultilangAPI/models"
 
 	"github.com/RipudamanKaushikDal/MultilangAPI/controllers"
+
+	"github.com/gin-contrib/cors"
 )
 
 func main() {
 	router := gin.Default()
+
+	config := cors.DefaultConfig()
+
+	config.AllowOrigins = []string{"http://localhost:3000"}
 
 	models.ConnectDatabase()
 
@@ -24,5 +30,6 @@ func main() {
 	router.GET("/stocks", controllers.GetAllStocks)
 	router.GET("/stocks/:id", controllers.GetStockById)
 
+	router.Use(cors.New(config))
 	router.Run()
 }

@@ -1,7 +1,18 @@
 .App {
   text-align: center;
+  color: aliceblue;
+  min-height: 100vh;
+  height: 100%;
   background-color: #282c34;
 }
 
-
-
+button {
+  height: 2rem;
+  width:5.5rem;
+  background:#223b6c;
+  outline: none;
+  border:none;
+  border-radius: 30px;
+  color:aliceblue;
+  cursor: pointer;
+}

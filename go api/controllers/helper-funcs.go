@@ -21,8 +21,8 @@ type APIResult struct {
 }
 
 type Result struct {
-	ID        uint                     `json:"id"`
-	StockInfo []map[string]interface{} `json:"stockInfo"`
+	InvestorID uint                     `json:"investorId"`
+	StockInfo  []map[string]interface{} `json:"stockInfo"`
 }
 
 func setInterval(task func(), duration int) chan bool {
@@ -78,7 +78,7 @@ func GetStockInfo(stockModels []models.Stock) Result {
 
 	var result Result
 
-	result.ID = stockModels[0].InvestorID
+	result.InvestorID = stockModels[0].InvestorID
 	response, err := GetTaskId(stockModels)
 
 	var task Task
