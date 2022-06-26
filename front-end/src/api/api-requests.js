@@ -29,3 +29,21 @@ export const getInvestorStocks = async(investorId) => {
     }
 }
 
+export const createInvestor = async(name,stockList) => {
+    try {
+        const resp = await fetch(`${APIURL}/investors`,{
+            method:"POST",
+            body:JSON.stringify({
+                name,
+                stocks:stockList
+            })
+        })
+        if (resp.status !== 200) {
+            throw new Error("Can't Create Investor")
+        }
+        const response = await getAllStocks()
+        return  response.json()
+    } catch (error) {
+        console.error(error)
+    }
+}

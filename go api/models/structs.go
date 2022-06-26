@@ -4,9 +4,8 @@ import "gorm.io/gorm"
 
 type Investor struct {
 	gorm.Model
-	ID     uint    `json:"id"`
-	Name   string  `json:"name"`
-	Stocks []Stock `json:"stocks"`
+	Name   string  `json:"name" binding:"required"`
+	Stocks []Stock `json:"stocks" binding:"required"`
 }
 
 type Stock struct {
